@@ -1,15 +1,13 @@
 package http
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/AnkushJadhav/kamaji-root/pkg/server/http/handlers"
 )
 
-func attachExternalRoutes(app *fiber.App) {
-	app.Get("/", func(c *fiber.Ctx) {
-		c.Send("Hello, World!")
-	})
+func attachExternalRoutes(srv *Server) {
+	srv.app.Post("/v1/api/users", handlers.HandleCreateUser(srv.config.StorageDriver))
 }
 
-func attachInternalRoutes(app *fiber.App) {
+func attachInternalRoutes(srv *Server) {
 
 }

@@ -6,6 +6,7 @@ import (
 
 // CreateUserInput is the input required for CreateUser
 type CreateUserInput struct {
+	Username string
 	Email    string
 	Password string
 	Role     int
@@ -25,6 +26,7 @@ func CreateUser(s store.Store, input CreateUserInput) (CreateUserOutput, error) 
 		Email:    input.Email,
 		Password: input.Password,
 		RoleID:   input.Role,
+		Username: input.Username,
 	}
 
 	mUser, err := s.CreateOne(store.UserCollection, user)

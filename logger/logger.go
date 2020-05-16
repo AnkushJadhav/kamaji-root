@@ -18,6 +18,7 @@ var (
 func InitLogger() {
 	once.Do(func() {
 		logger = logrus.New()
+		logger.Level = logrus.DebugLevel
 	})
 }
 

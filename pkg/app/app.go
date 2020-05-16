@@ -32,6 +32,10 @@ func Start(cfgFile string) error {
 	if err != nil {
 		return err
 	}
+	db, err = db.Connect()
+	if err != nil {
+		return err
+	}
 
 	logger.Infoln("starting http server")
 	httpServer := &http.Server{}

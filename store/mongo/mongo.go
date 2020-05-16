@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"context"
-	"github.com/AnkushJadhav/kamaji-root/logger"
+
 	"github.com/AnkushJadhav/kamaji-root/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,19 +29,18 @@ func NewMongoDriver(dst string) (Mongo, error) {
 }
 
 // Connect connects to dst
-func (mdb Mongo) Connect() error {
+func (mdb Mongo) Connect() (store.Store, error) {
 	err := mdb.rootClient.Connect(context.Background())
 	if err != nil {
-		return err
+		return mdb, err
 	}
 
 	mdb.dbClient = mdb.rootClient.Database("kamaji-root")
-	return nil
+	return mdb, nil
 }
 
 // CreateOne creates a document in collection col
 func (mdb Mongo) CreateOne(col string, m store.Model) (store.Model, error) {
-	logger.Infoln(m)
-	//mdb.dbClient.Collection(col).InsertOne(context.Background(), m)
+	mdb.dbClient.Collection(col).InsertOne(context.Background(), m)
 	return m, nil
 }

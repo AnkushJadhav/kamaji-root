@@ -12,7 +12,7 @@ type Model interface {
 
 // Store is the interface that any storage driver in the application must implement
 type Store interface {
-	Connect() error
+	Connect() (Store, error)
 	//Disconnect() error
 
 	//GetAll(string) (int64, []Model, error)

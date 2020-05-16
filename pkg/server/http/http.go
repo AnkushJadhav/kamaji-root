@@ -6,7 +6,6 @@ import (
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/server"
 
-	"github.com/AnkushJadhav/kamaji-root/store"
 	"github.com/gofiber/fiber"
 )
 
@@ -14,20 +13,18 @@ import (
 type Server struct {
 	app      *fiber.App
 	settings *fiber.Settings
-	store    *store.Store
 	config   *server.Config
 }
 
 // Bootstrap initialises the http server without starting it
 func (srv *Server) Bootstrap(conf *server.Config) error {
+	srv.config = conf
 	srv.initServerSettings()
 	srv.prepopulatePool(conf.PopulatePool)
 
 	srv.initServer()
-	attachExternalRoutes(srv.app)
-	attachInternalRoutes(srv.app)
-
-	srv.config = conf
+	attachExternalRoutes(srv)
+	attachInternalRoutes(srv)
 
 	return nil
 }
