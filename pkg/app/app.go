@@ -4,6 +4,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AnkushJadhav/kamaji-root/store"
+
+	"github.com/AnkushJadhav/kamaji-root/store/mongo"
+
 	"github.com/AnkushJadhav/kamaji-root/logger"
 	"github.com/AnkushJadhav/kamaji-root/pkg/server"
 	"github.com/AnkushJadhav/kamaji-root/pkg/server/http"
@@ -23,9 +27,23 @@ func Start(cfgFile string) error {
 		startFileLogging(logFile)
 	}
 
+	logger.Infoln("initialising db driver")
+	db, err := getStorageDriver(conf.Mongo.ConnString)
+	if err != nil {
+		return err
+	}
+
 	logger.Infoln("starting http server")
 	httpServer := &http.Server{}
-	startServer(httpServer, conf.Server.BindIP, conf.Server.Port)
+	serverConfig := &server.Config{
+		IsProd:        false,
+		EnableTLS:     false,
+		PopulatePool:  true,
+		BindIP:        conf.Server.BindIP,
+		Port:          conf.Server.Port,
+		StorageDriver: db,
+	}
+	startServer(httpServer, serverConfig)
 
 	return nil
 }
@@ -45,12 +63,21 @@ func startFileLogging(logFile string) error {
 	return nil
 }
 
-func startServer(srv server.Server, bindIP string, port int) error {
-	if err := srv.Bootstrap(); err != nil {
+func getStorageDriver(dst string) (store.Store, error) {
+	drv, err := mongo.NewMongoDriver(dst)
+	if err != nil {
+		return mongo.Mongo{}, err
+	}
+
+	return drv, nil
+}
+
+func startServer(srv server.Server, conf *server.Config) error {
+	if err := srv.Bootstrap(conf); err != nil {
 		return err
 	}
 
-	if err := srv.Start(bindIP, port); err != nil {
+	if err := srv.Start(); err != nil {
 		return err
 	}
 
