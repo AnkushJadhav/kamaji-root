@@ -9,18 +9,32 @@ const UserCollection = "users"
 
 // UserModel represents a user
 type UserModel struct {
-	Email     string
-	Username  string
-	Password  string
-	RoleID    int
+	ID       string
+	TS       time.Time
+	Email    string
+	Username string
+	Password string
+	RoleID   int
 }
 
 // GetID returns the id of the user document
 func (um UserModel) GetID() string {
-	return ""
+	return um.ID
 }
 
-// GetTimestamp returns the id of the user document
-func (um UserModel) GetTimestamp() time.Time {
-	return time.Now()
+// SetID sets the id of the user document
+func (um UserModel) SetID(id string) Model {
+	um.ID = id
+	return um
+}
+
+// GetSystemTimestamp returns the timestamp of the user document
+func (um UserModel) GetSystemTimestamp() time.Time {
+	return um.TS
+}
+
+// SetSystemTimestamp sets the timestap of the user document
+func (um UserModel) SetSystemTimestamp() Model {
+	um.TS = time.Now()
+	return um
 }
