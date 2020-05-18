@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+
 	"github.com/AnkushJadhav/kamaji-root/pkg/models"
 )
 
@@ -11,4 +12,5 @@ type Driver interface {
 	Disconnect() error
 
 	GetAllUsers(context.Context) ([]models.User, error)
+	CreateUser(context.Context, *models.User) error
 }

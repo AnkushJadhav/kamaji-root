@@ -21,3 +21,12 @@ func (mdb *Driver) GetAllUsers(ctx context.Context) ([]models.User, error) {
 
 	return result, nil
 }
+
+// CreateUser creates a user in the MongoDB persistan storage
+func (mdb *Driver) CreateUser(ctx context.Context, user *models.User) error {
+	_, err := mdb.dbs[dbPrimary].Collection(colUsers).InsertOne(ctx, user)
+	if err != nil {
+		return err
+	}
+	return nil
+}

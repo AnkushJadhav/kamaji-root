@@ -35,16 +35,30 @@ func HandleGetAllUsers(str store.Driver) func(*fiber.Ctx) {
 
 // HandleCreateUser handles the request to craete a user
 func HandleCreateUser(str store.Driver) func(*fiber.Ctx) {
-	type RequestCreateUser struct {
-		Email string `json:"email"`
-		Role  int    `json:"role"`
+	type RequestBody struct {
+		Email  string `json:"email"`
+		RoleID int    `json:"roleID"`
 	}
-	type ResponseCreateUser struct {
-		ID    string `json:"id"`
-		Email string `json:"email"`
-		Role  int    `json:"role"`
+	type ResponseBody struct {
+		Data interface{} `json:"data"`
 	}
-	return func(ctx *fiber.Ctx) {
-		ctx.Status(http.StatusOK)
+	return func(c *fiber.Ctx) {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		request := RequestBody{}
+		if err := c.BodyParser(&request); err != nil {
+			c.Status(http.StatusBadRequest).Send()
+		}
+
+		user, err := users.CreateUser(ctx, str, request.Email, request.RoleID)
+		if err != nil {
+			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+		}
+
+		response := ResponseBody{
+			Data: user,
+		}
+		c.Status(http.StatusOK).JSON(response)
 	}
 }
