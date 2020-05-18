@@ -1,20 +1,32 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
-	"github.com/AnkushJadhav/kamaji-root/store"
+	"github.com/AnkushJadhav/kamaji-root/pkg/store"
 
-	"github.com/AnkushJadhav/kamaji-root/store/mongo"
+	"github.com/AnkushJadhav/kamaji-root/pkg/store/drivers/mongo"
 
 	"github.com/AnkushJadhav/kamaji-root/logger"
 	"github.com/AnkushJadhav/kamaji-root/pkg/server"
 	"github.com/AnkushJadhav/kamaji-root/pkg/server/http"
 )
 
+type app struct {
+	isProd     bool
+	httpServer *http.Server
+}
+
+var mainApp *app
+
 // Start starts the kamaji-root server
 func Start(cfgFile string) error {
+	if mainApp != nil {
+		return fmt.Errorf("kamaji-root application has already started")
+	}
+
 	logger.Infoln("staring applciation")
 	conf, err := getConfig(cfgFile)
 	if err != nil {
@@ -32,23 +44,34 @@ func Start(cfgFile string) error {
 	if err != nil {
 		return err
 	}
-	db, err = db.Connect()
-	if err != nil {
+
+	if err = db.Connect(); err != nil {
 		return err
 	}
 
 	logger.Infoln("starting http server")
 	httpServer := &http.Server{}
 	serverConfig := &server.Config{
-		IsProd:        false,
 		EnableTLS:     false,
 		PopulatePool:  true,
 		BindIP:        conf.Server.BindIP,
 		Port:          conf.Server.Port,
 		StorageDriver: db,
 	}
+	mainApp = &app{
+		httpServer: httpServer,
+	}
+
 	startServer(httpServer, serverConfig)
 
+	return nil
+}
+
+// Stop gracefully stops the kamaji-root application
+func Stop() error {
+	if err := mainApp.httpServer.Stop(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -67,13 +90,13 @@ func startFileLogging(logFile string) error {
 	return nil
 }
 
-func getStorageDriver(dst string) (store.Store, error) {
-	drv, err := mongo.NewMongoDriver(dst)
+func getStorageDriver(conn string) (store.Driver, error) {
+	drvr, err := mongo.NewDriver(conn)
 	if err != nil {
-		return mongo.Mongo{}, err
+		return nil, err
 	}
 
-	return drv, nil
+	return drvr, nil
 }
 
 func startServer(srv server.Server, conf *server.Config) error {

@@ -1,17 +1,16 @@
 package server
 
 import (
-	"github.com/AnkushJadhav/kamaji-root/store"
+	"github.com/AnkushJadhav/kamaji-root/pkg/store"
 )
 
 // Config is the config for the server
 type Config struct {
-	IsProd        bool
 	PopulatePool  bool
 	EnableTLS     bool
 	BindIP        string
 	Port          int
-	StorageDriver store.Store
+	StorageDriver store.Driver
 }
 
 // Server is the interface to be fulfilled by any web server running on this application

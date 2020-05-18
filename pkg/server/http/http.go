@@ -36,7 +36,13 @@ func (srv *Server) Start() error {
 }
 
 // Stop stops the default HTTP server
-func (*Server) Stop() error {
+func (srv *Server) Stop() error {
+	if err := srv.app.Shutdown(); err != nil {
+		return err
+	}
+	if err := srv.config.StorageDriver.Disconnect(); err != nil {
+		return err
+	}
 	return nil
 }
 

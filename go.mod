@@ -3,6 +3,7 @@ module github.com/AnkushJadhav/kamaji-root
 go 1.13
 
 require (
+	github.com/coreos/etcd v3.3.10+incompatible
 	github.com/gofiber/fiber v1.9.6
 	github.com/google/uuid v1.1.1
 	github.com/sirupsen/logrus v1.4.2

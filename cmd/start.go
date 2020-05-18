@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/AnkushJadhav/kamaji-root/logger"
 
@@ -13,9 +15,6 @@ import (
 var (
 	// ConfigFile is the default config file path
 	ConfigFile = ""
-
-	// LogFile is the default log file path
-	LogFile = ""
 )
 
 func genStartCmd() *cobra.Command {
@@ -29,12 +28,13 @@ func genStartCmd() *cobra.Command {
 				return err
 			}
 
+			go startShutdownHandler()
 			if err := app.Start(cfgFile); err != nil {
 				logger.Errorf("Error while starting app : %v", err.Error())
 				return err
 			}
 
-			return nil
+			return app.Stop()
 		},
 		SilenceUsage: true,
 	}
@@ -53,4 +53,17 @@ func validateFlagPaths(cfgFile string) error {
 	f.Close()
 
 	return nil
+}
+
+func startShutdownHandler() {
+	listener := make(chan os.Signal, 1)
+	signal.Notify(listener, syscall.SIGINT)
+
+	for {
+		select {
+		case <-listener:
+			logger.Infoln("recieved SIGINT, stopping application")
+			app.Stop()
+		}
+	}
 }
