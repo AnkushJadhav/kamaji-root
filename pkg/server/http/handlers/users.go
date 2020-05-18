@@ -23,6 +23,7 @@ func HandleGetAllUsers(str store.Driver) func(*fiber.Ctx) {
 
 		users, err := users.GetAllUsers(ctx, str)
 		if err != nil {
+			logger.Errorln(err)
 			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
 			return
 		}
@@ -56,6 +57,7 @@ func HandleCreateUser(str store.Driver) func(*fiber.Ctx) {
 
 		user, err := users.CreateUser(ctx, str, request.Email, request.RoleID)
 		if err != nil {
+			logger.Errorln(err)
 			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
 			return
 		}
