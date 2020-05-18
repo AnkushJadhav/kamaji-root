@@ -13,4 +13,5 @@ type Driver interface {
 
 	GetAllUsers(context.Context) ([]models.User, error)
 	CreateUser(context.Context, *models.User) error
+	DeleteUserByIDs(context.Context, []string) (int, error)
 }

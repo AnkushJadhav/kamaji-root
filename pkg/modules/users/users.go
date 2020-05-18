@@ -30,3 +30,16 @@ func CreateUser(ctx context.Context, store store.Driver, email string, roleID in
 
 	return user, nil
 }
+
+// DeleteUser deletes a user based on id
+func DeleteUser(ctx context.Context, store store.Driver, id string) error {
+	ids := make([]string, 1)
+	ids[0] = id
+
+	_, err := store.DeleteUserByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
