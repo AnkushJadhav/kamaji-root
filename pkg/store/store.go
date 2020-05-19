@@ -12,6 +12,7 @@ type Driver interface {
 	Disconnect() error
 
 	GetAllUsers(context.Context) ([]models.User, error)
+	GetUserByID(context.Context, string) (models.User, error)
 	CreateUser(context.Context, *models.User) error
 	DeleteUserByIDs(context.Context, []string) (int, error)
 }

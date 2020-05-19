@@ -22,6 +22,22 @@ func (mdb *Driver) GetAllUsers(ctx context.Context) ([]models.User, error) {
 	return result, nil
 }
 
+// GetUserByID retrieves a user from the MongoDB persistant storage based on id
+func (mdb *Driver) GetUserByID(ctx context.Context, id string) (models.User, error) {
+	cur, err := mdb.dbs[dbPrimary].Collection(colUsers).Find(ctx, bson.D{{atrID, id}})
+	if err != nil {
+		return models.User{}, err
+	}
+
+	result := models.User{}
+	cur.Next(ctx)
+	if err := cur.Decode(&result); err != nil {
+		return models.User{}, err
+	}
+
+	return result, nil
+}
+
 // CreateUser creates a user in the MongoDB persistan storage
 func (mdb *Driver) CreateUser(ctx context.Context, user *models.User) error {
 	_, err := mdb.dbs[dbPrimary].Collection(colUsers).InsertOne(ctx, user)

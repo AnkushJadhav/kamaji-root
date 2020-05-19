@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"github.com/AnkushJadhav/kamaji-root/logger"
 	"context"
 	"net/http"
 	"time"
+
+	"github.com/AnkushJadhav/kamaji-root/logger"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/modules/users"
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
@@ -30,6 +31,35 @@ func HandleGetAllUsers(str store.Driver) func(*fiber.Ctx) {
 
 		response := ResponseBody{
 			Data: users,
+		}
+		c.Status(http.StatusOK).JSON(response)
+		return
+	}
+}
+
+// HandleGetUserByID handles the request to get a user by id
+func HandleGetUserByID(str store.Driver) func(*fiber.Ctx) {
+	type ResponseBody struct {
+		Data interface{} `json:"data"`
+	}
+	return func(c *fiber.Ctx) {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		if c.Params("id") == "" {
+			c.Status(http.StatusBadRequest).Send()
+			return
+		}
+
+		user, err := users.GetUserByID(ctx, str, c.Params("id"))
+		if err != nil {
+			logger.Errorln(err)
+			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			return
+		}
+
+		response := ResponseBody{
+			Data: user,
 		}
 		c.Status(http.StatusOK).JSON(response)
 		return

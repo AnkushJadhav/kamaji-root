@@ -15,6 +15,11 @@ func GetAllUsers(ctx context.Context, store store.Driver) ([]models.User, error)
 	return store.GetAllUsers(ctx)
 }
 
+// GetUserByID gets a user based on id
+func GetUserByID(ctx context.Context, store store.Driver, id string) (models.User, error) {
+	return store.GetUserByID(ctx, id)
+}
+
 // CreateUser creates a new user in the system
 func CreateUser(ctx context.Context, store store.Driver, email string, roleID int) (models.User, error) {
 	user := models.User{
