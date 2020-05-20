@@ -11,5 +11,6 @@ type User struct {
 	Email    string    `bson:"email"`
 	Username string    `bson:"username,omitempty"`
 	Password string    `bson:"password,omitempty"`
-	RoleID   int       `bson:"roleid"`
+	RoleID   int       `bson:"roleId"`
+	Nodes    []Node    `bson:"nodes"`
 }

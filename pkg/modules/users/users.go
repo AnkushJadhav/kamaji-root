@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/utils"
@@ -9,6 +11,13 @@ import (
 	"github.com/AnkushJadhav/kamaji-root/pkg/models"
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
 )
+
+// PasswordDoesNotMatchPolicy is the error returned when the user password does not match password policy
+type PasswordDoesNotMatchPolicy struct{}
+
+func (p *PasswordDoesNotMatchPolicy) Error() string {
+	return fmt.Sprintf("password does not match policy")
+}
 
 // GetAllUsers gets all users in the system
 func GetAllUsers(ctx context.Context, store store.Driver) ([]models.User, error) {
@@ -46,5 +55,30 @@ func DeleteUser(ctx context.Context, store store.Driver, id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func isValid(password string) bool {
+	policy := regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})`)
+	return policy.Match([]byte(password))
+}
+
+// RegisterUser updates a user with their registration information post successful sign in at node
+func RegisterUser(ctx context.Context, store store.Driver, id, password string) error {
+	if !isValid(password) {
+		return &PasswordDoesNotMatchPolicy{}
+	}
+
+	hashedPwd, err := utils.GenerateBcryptHash([]byte(password))
+	if err != nil {
+		return err
+	}
+	toUpdate := models.User{
+		Password: string(hashedPwd),
+	}
+	_, err = store.UpdateUsersByIDs(ctx, []string{id}, toUpdate)
+	if err != nil {
+		return err
+	}
 	return nil
 }

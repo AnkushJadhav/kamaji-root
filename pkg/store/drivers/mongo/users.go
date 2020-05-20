@@ -49,9 +49,18 @@ func (mdb *Driver) CreateUser(ctx context.Context, user *models.User) error {
 
 // DeleteUserByIDs deletes a user from the MongoDB persistant storage based on id
 func (mdb *Driver) DeleteUserByIDs(ctx context.Context, ids []string) (int, error) {
-	deleted, err := mdb.dbs[dbPrimary].Collection(colUsers).DeleteMany(ctx, bson.M{atrID: bson.M{"$in": ids}})
+	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).DeleteMany(ctx, bson.M{atrID: bson.M{"$in": ids}})
 	if err != nil {
 		return -1, err
 	}
-	return int(deleted.DeletedCount), nil
+	return int(docs.DeletedCount), nil
+}
+
+// UpdateUserByIDs updates a user with data identified by id
+func (mdb *Driver) UpdateUserByIDs(ctx context.Context, id string, data models.User) (int, error) {
+	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateMany(ctx, bson.M{atrID: bson.M{"$in": ids}}, data)
+	if err != nil {
+		return -1, err
+	}
+	return int(docs.MatchedCount), nil
 }

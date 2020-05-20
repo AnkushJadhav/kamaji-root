@@ -123,3 +123,38 @@ func HandleDeleteUser(str store.Driver) func(*fiber.Ctx) {
 		return
 	}
 }
+
+// HandleRegisterUser handles the registration of a created user
+func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
+	type RequestBody struct {
+		Password string `json:"password"`
+	}
+	return func(c *fiber.Ctx) {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		if c.Params("id") == "" {
+			c.Status(http.StatusBadRequest).Send()
+			return
+		}
+
+		request := RequestBody{}
+		if err := c.BodyParser(&request); err != nil {
+			c.Status(http.StatusBadRequest).Send()
+			return
+		}
+
+		if err := users.RegisterUser(ctx, str, c.Params("id"), request.Password); err != nil {
+			if _, isPPError := err.(*users.PasswordDoesNotMatchPolicy); isPPError {
+				c.Status(http.StatusBadRequest).Send(err.Error())
+				return
+			}
+			logger.Errorln(err)
+			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			return
+		}
+
+		c.Status(http.StatusOK).Send()
+		return
+	}
+}

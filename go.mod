@@ -11,5 +11,6 @@ require (
 	github.com/spf13/viper v1.4.0
 	go.mongodb.org/mongo-driver v1.3.3
 	go.uber.org/zap v1.10.0
+	golang.org/x/crypto v0.0.0-20190530122614-20be4c3c3ed5
 	gopkg.in/yaml.v2 v2.2.2
 )
