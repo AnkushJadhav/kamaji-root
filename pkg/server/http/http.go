@@ -23,8 +23,12 @@ func (srv *Server) Bootstrap(conf *server.Config) error {
 	srv.prepopulatePool(conf.PopulatePool)
 
 	srv.initServer()
-	attachExternalRoutes(srv)
-	attachInternalRoutes(srv)
+
+	loadUnrestrictedRootRoutes(srv)
+	loadUnrestrictedNodeRoutes(srv)
+
+	loadRestrictedRootRoutes(srv)
+	loadRestrictedNodeRoutes(srv)
 
 	return nil
 }

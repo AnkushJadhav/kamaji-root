@@ -25,7 +25,7 @@ func GetAllUsers(ctx context.Context, store store.Driver) ([]models.User, error)
 }
 
 // GetUserByID gets a user based on id
-func GetUserByID(ctx context.Context, store store.Driver, id string) (models.User, error) {
+func GetUserByID(ctx context.Context, store store.Driver, id string) (*models.User, error) {
 	return store.GetUserByID(ctx, id)
 }
 

@@ -146,7 +146,7 @@ func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 
 		if err := users.RegisterUser(ctx, str, c.Params("id"), request.Password); err != nil {
 			if _, isPPError := err.(*users.PasswordDoesNotMatchPolicy); isPPError {
-				c.Status(http.StatusBadRequest).Send(err.Error())
+				c.Status(http.StatusUnprocessableEntity).Send(err.Error())
 				return
 			}
 			logger.Errorln(err)

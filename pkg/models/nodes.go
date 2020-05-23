@@ -6,6 +6,7 @@ import "time"
 type Node struct {
 	ID            string    `bson:"id"`
 	TS            time.Time `bson:"ts"`
+	Name          string    `json:"name"`
 	LastHeartbeat time.Time `bson:"lastHeartbeat"`
 	Version       string    `bson:"version"`
 	HostData      HostData  `bson:"hostData"`

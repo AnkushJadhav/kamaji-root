@@ -16,3 +16,4 @@
 
 #VSCode debug tools
 .vscode
+__debug_bin
