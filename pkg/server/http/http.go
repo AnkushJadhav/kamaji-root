@@ -7,6 +7,7 @@ import (
 	"github.com/AnkushJadhav/kamaji-root/pkg/server"
 
 	"github.com/gofiber/fiber"
+	"github.com/gofiber/requestid"
 )
 
 // Server is the default HTTP server for the kamaji-root application
@@ -23,6 +24,7 @@ func (srv *Server) Bootstrap(conf *server.Config) error {
 	srv.prepopulatePool(conf.PopulatePool)
 
 	srv.initServer()
+	srv.app.Use(requestid.New())
 
 	loadUnrestrictedRootRoutes(srv)
 	loadUnrestrictedNodeRoutes(srv)

@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AnkushJadhav/kamaji-root/logger"
 	"github.com/AnkushJadhav/kamaji-root/pkg/modules/nodes"
-
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
+
 	"github.com/gofiber/fiber"
+	"github.com/gofiber/requestid"
 )
 
 // HandleRegisterNode handles the registration of a created node
@@ -38,8 +38,7 @@ func HandleRegisterNode(str store.Driver) func(*fiber.Ctx) {
 		}
 
 		if err := nodes.RegisterNode(ctx, str, c.Params("user_id"), request.Name, request.Version, request.HostData.OS, request.HostData.DockerVersion); err != nil {
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 

@@ -5,12 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AnkushJadhav/kamaji-root/logger"
-
 	"github.com/AnkushJadhav/kamaji-root/pkg/modules/users"
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
 
 	"github.com/gofiber/fiber"
+	"github.com/gofiber/requestid"
 )
 
 // HandleGetAllUsers handles the request to get all users
@@ -24,8 +23,7 @@ func HandleGetAllUsers(str store.Driver) func(*fiber.Ctx) {
 
 		users, err := users.GetAllUsers(ctx, str)
 		if err != nil {
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 
@@ -53,8 +51,7 @@ func HandleGetUserByID(str store.Driver) func(*fiber.Ctx) {
 
 		user, err := users.GetUserByID(ctx, str, c.Params("id"))
 		if err != nil {
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 
@@ -87,8 +84,7 @@ func HandleCreateUser(str store.Driver) func(*fiber.Ctx) {
 
 		user, err := users.CreateUser(ctx, str, request.Email, request.RoleID)
 		if err != nil {
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 
@@ -114,8 +110,7 @@ func HandleDeleteUser(str store.Driver) func(*fiber.Ctx) {
 		//TODO: Validate if user with id exists
 
 		if err := users.DeleteUser(ctx, str, c.Params("id")); err != nil {
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 
@@ -149,8 +144,7 @@ func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 				c.Status(http.StatusUnprocessableEntity).Send(err.Error())
 				return
 			}
-			logger.Errorln(err)
-			c.Status(http.StatusInternalServerError).Send("Oops! Something went wrong!")
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
 
