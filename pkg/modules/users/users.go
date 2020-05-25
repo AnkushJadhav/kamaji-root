@@ -64,7 +64,7 @@ func isValid(password string) bool {
 }
 
 // RegisterUser updates a user with their registration information post successful sign in at node
-func RegisterUser(ctx context.Context, store store.Driver, id, password string) error {
+func RegisterUser(ctx context.Context, store store.Driver, id, username, password string) error {
 	if !isValid(password) {
 		return &PasswordDoesNotMatchPolicy{}
 	}
@@ -74,6 +74,7 @@ func RegisterUser(ctx context.Context, store store.Driver, id, password string) 
 		return err
 	}
 	toUpdate := models.User{
+		Username: username,
 		Password: string(hashedPwd),
 	}
 	_, err = store.UpdateUsersByIDs(ctx, []string{id}, toUpdate)

@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/AnkushJadhav/kamaji-root/pkg/models"
+	"github.com/AnkushJadhav/kamaji-root/pkg/modules/users"
+
 	"github.com/AnkushJadhav/kamaji-root/pkg/modules/system"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
@@ -35,10 +38,13 @@ func HandleGetBootupState(str store.Driver) func(*fiber.Ctx) {
 	}
 }
 
-// HandleRootTokenValidityCheck checks whther the root token entered is valid
-func HandleRootTokenValidityCheck(str store.Driver) func(*fiber.Ctx) {
+// HandleCreateRootUser checks whther the root token entered is valid
+func HandleCreateRootUser(str store.Driver) func(*fiber.Ctx) {
 	type RequestBody struct {
 		RootToken string `json:"roottoken"`
+		Email     string `json:"email"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
 	}
 	return func(c *fiber.Ctx) {
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -56,10 +62,19 @@ func HandleRootTokenValidityCheck(str store.Driver) func(*fiber.Ctx) {
 			return
 		}
 
-		if tokenValid {
-			c.Status(http.StatusOK).Send()
-		} else {
+		if !tokenValid {
 			c.Status(http.StatusUnauthorized).Send()
+		} else {
+			user, err := users.CreateUser(ctx, str, request.Email, models.RoleAdmin)
+			if err != nil {
+				c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
+				return
+			}
+			if err := users.RegisterUser(ctx, str, user.ID, request.Username, request.Password); err != nil {
+				c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
+				return
+			}
+			c.Status(http.StatusOK).Send()
 		}
 		return
 	}

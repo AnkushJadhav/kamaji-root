@@ -122,6 +122,7 @@ func HandleDeleteUser(str store.Driver) func(*fiber.Ctx) {
 // HandleRegisterUser handles the registration of a created user
 func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 	type RequestBody struct {
+		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 	return func(c *fiber.Ctx) {
@@ -139,7 +140,7 @@ func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 			return
 		}
 
-		if err := users.RegisterUser(ctx, str, c.Params("id"), request.Password); err != nil {
+		if err := users.RegisterUser(ctx, str, c.Params("id"), request.Username, request.Password); err != nil {
 			if _, isPPError := err.(*users.PasswordDoesNotMatchPolicy); isPPError {
 				c.Status(http.StatusUnprocessableEntity).Send(err.Error())
 				return

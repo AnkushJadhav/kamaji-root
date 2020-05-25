@@ -6,7 +6,7 @@ import (
 
 func loadUnrestrictedRootRoutes(srv *Server) {
 	srv.app.Get("/v1/api/config/bootupstate", handlers.HandleGetAllUsers(srv.config.StorageDriver))
-	srv.app.Get("/v1/api/config/isRootTokenValid", handlers.HandleGetAllUsers(srv.config.StorageDriver))
+	srv.app.Post("/v1/api/config/rootuser", handlers.HandleCreateRootUser(srv.config.StorageDriver))
 }
 
 func loadRestrictedRootRoutes(srv *Server) {
@@ -18,9 +18,8 @@ func loadRestrictedRootRoutes(srv *Server) {
 
 func loadUnrestrictedNodeRoutes(srv *Server) {
 	srv.app.Post("/v1/api/users/register/:id", handlers.HandleRegisterUser(srv.config.StorageDriver))
-	srv.app.Post("/v1/api/nodes/register/:user_id", handlers.HandleRegisterNode(srv.config.StorageDriver))
 }
 
 func loadRestrictedNodeRoutes(srv *Server) {
-
+	srv.app.Post("/v1/api/nodes/register/:user_id", handlers.HandleRegisterNode(srv.config.StorageDriver))
 }
