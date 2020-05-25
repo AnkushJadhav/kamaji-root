@@ -9,7 +9,7 @@ import (
 
 // AddNodeToUser updates a user with data identified by id
 func (mdb *Driver) AddNodeToUser(ctx context.Context, userID string, node models.Node) (int, error) {
-	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateOne(ctx, bson.D{{atrID, userID}}, bson.M{"$push": bson.D{{atrNodes, node}}})
+	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateOne(ctx, bson.D{{colUsersAtrID, userID}}, bson.M{"$push": bson.D{{colUsersAtrNodes, node}}})
 	if err != nil {
 		return -1, err
 	}

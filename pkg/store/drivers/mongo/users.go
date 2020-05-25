@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,18 +24,14 @@ func (mdb *Driver) GetAllUsers(ctx context.Context) ([]models.User, error) {
 
 // GetUserByID retrieves a user from the MongoDB persistant storage based on id
 func (mdb *Driver) GetUserByID(ctx context.Context, id string) (*models.User, error) {
-	cur, err := mdb.dbs[dbPrimary].Collection(colUsers).Find(ctx, bson.D{{atrID, id}})
-	if err != nil {
-		return nil, err
+	doc := mdb.dbs[dbPrimary].Collection(colUsers).FindOne(ctx, bson.D{{colUsersAtrID, id}})
+	if doc.Err() != nil {
+		return nil, doc.Err()
 	}
 
 	result := &models.User{}
-	if cur.Next(ctx) {
-		if err := cur.Decode(result); err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, fmt.Errorf("no user found")
+	if err := doc.Decode(result); err != nil {
+		return nil, err
 	}
 
 	return result, nil
@@ -53,7 +48,7 @@ func (mdb *Driver) CreateUser(ctx context.Context, user *models.User) error {
 
 // DeleteUserByIDs deletes a user from the MongoDB persistant storage based on id
 func (mdb *Driver) DeleteUserByIDs(ctx context.Context, ids []string) (int, error) {
-	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).DeleteMany(ctx, bson.M{atrID: bson.M{"$in": ids}})
+	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).DeleteMany(ctx, bson.M{colUsersAtrID: bson.M{"$in": ids}})
 	if err != nil {
 		return -1, err
 	}
@@ -62,7 +57,7 @@ func (mdb *Driver) DeleteUserByIDs(ctx context.Context, ids []string) (int, erro
 
 // UpdateUsersByIDs updates a user with data identified by id
 func (mdb *Driver) UpdateUsersByIDs(ctx context.Context, ids []string, data models.User) (int, error) {
-	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateMany(ctx, bson.M{atrID: bson.M{"$in": ids}}, data)
+	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateMany(ctx, bson.M{colUsersAtrID: bson.M{"$in": ids}}, data)
 	if err != nil {
 		return -1, err
 	}

@@ -5,7 +5,8 @@ import (
 )
 
 func loadUnrestrictedRootRoutes(srv *Server) {
-
+	srv.app.Get("/v1/api/config/bootupstate", handlers.HandleGetAllUsers(srv.config.StorageDriver))
+	srv.app.Get("/v1/api/config/isRootTokenValid", handlers.HandleGetAllUsers(srv.config.StorageDriver))
 }
 
 func loadRestrictedRootRoutes(srv *Server) {

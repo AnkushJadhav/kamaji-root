@@ -49,6 +49,8 @@ func Start(cfgFile string) error {
 		return err
 	}
 
+	persistSystemConfig(conf)
+
 	logger.Infoln("starting http server")
 	httpServer := &http.Server{}
 	serverConfig := &server.Config{
@@ -73,6 +75,13 @@ func Stop() error {
 		return err
 	}
 	return nil
+}
+
+func persistSystemConfig(conf *config) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	db.SetBootupState(ctx, models.BootupStatePending)
+	db.SetRootToken(ctx, conf.Admin.RootToken)
 }
 
 func fileLoggingEnabled(logFile string) bool {
