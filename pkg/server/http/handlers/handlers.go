@@ -12,7 +12,7 @@ type Response500 struct {
 
 // Handle500InternalServerError handles a generic HTTP 500 event
 func Handle500InternalServerError(id string, err error) Response500 {
-	logger.Errorln(err)
+	logger.Errorln(id, err)
 	return Response500{
 		ID:      id,
 		Message: "Oops! Something went wrong!",

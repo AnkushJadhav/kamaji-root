@@ -24,7 +24,8 @@ type Driver interface {
 	GetUserByID(context.Context, string) (*models.User, error)
 	CreateUser(context.Context, *models.User) error
 	DeleteUserByIDs(context.Context, []string) (int, error)
-	UpdateUsersByIDs(context.Context, []string, models.User) (int, error)
+	SetUserUsername(context.Context, string, string) error
+	SetUserPassword(context.Context, string, string) error
 
 	AddNodeToUser(context.Context, string, models.Node) (int, error)
 }

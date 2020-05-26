@@ -10,8 +10,6 @@ import (
 	jwtware "github.com/gofiber/jwt"
 )
 
-const jwtSigningMethod = "HS256"
-
 // EnableJWTAuthentication enables JWT authentication on all routes added to the server
 // after calling this function and persists the secret in the store
 func (srv *Server) EnableJWTAuthentication() error {
@@ -25,7 +23,7 @@ func (srv *Server) EnableJWTAuthentication() error {
 	srv.app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(jwtSecret),
 		// Signing method should always be explicitly mentioned
-		SigningMethod: jwtSigningMethod,
+		SigningMethod: jwt.SigningMethodHS256.Alg(),
 	}))
 
 	return nil
@@ -37,11 +35,12 @@ func generateJWTSecret() string {
 
 func (srv *Server) getJWTForUser(id string) (string, error) {
 	claims := jwt.StandardClaims{
-		Issuer:   "kamaji-root",
-		IssuedAt: time.Now().Unix(),
-		Subject:  id,
-		
+		Issuer:    "kamaji-root",
+		Audience:  "kamaji-root",
+		IssuedAt:  time.Now().Unix(),
+		Subject:   id,
+		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod(jwtSigningMethod), claims)
-	return token.SignedString(srv.config.JWTSecret)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(srv.config.JWTSecret))
 }

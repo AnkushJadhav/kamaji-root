@@ -82,35 +82,34 @@ func RegisterUser(ctx context.Context, store store.Driver, id, username, passwor
 	if err != nil {
 		return err
 	}
-	toUpdate := models.User{
-		Username: username,
-		Password: string(hashedPwd),
+
+	if err := store.SetUserUsername(ctx, id, username); err != nil {
+		return err
 	}
-	_, err = store.UpdateUsersByIDs(ctx, []string{id}, toUpdate)
-	if err != nil {
+	if err := store.SetUserPassword(ctx, id, string(hashedPwd)); err != nil {
 		return err
 	}
 	return nil
 }
 
 // AuthenticateUser verifies whether the the user is valid
-func AuthenticateUser(ctx context.Context, store store.Driver, email, password string) error {
+func AuthenticateUser(ctx context.Context, store store.Driver, email, password string) (*models.User, error) {
 	user, err := store.GetUserByEmail(ctx, email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if user == nil {
-		return &UserDoesNotExist{}
+		return nil, &UserDoesNotExist{}
 	}
 
-	if !utils.IsHashValid([]byte(password), []byte(user.Password)) {
-		return &AuthCredentialMismatch{}
+	if !utils.IsHashValid([]byte(user.Password), []byte(password)) {
+		return nil, &AuthCredentialMismatch{}
 	}
 
-	return nil
+	return user, nil
 }
 
 func isValid(password string) bool {
-	policy := regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})`)
+	policy := regexp.MustCompile(`(.*)?`)
 	return policy.Match([]byte(password))
 }

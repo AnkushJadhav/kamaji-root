@@ -32,7 +32,7 @@ func Start(cfgFile string) error {
 		return fmt.Errorf("kamaji-root application has already started")
 	}
 
-	logger.Infoln("staring applciation")
+	logger.Infoln("staring application")
 	conf, err := getConfig(cfgFile)
 	if err != nil {
 		return err

@@ -159,10 +159,13 @@ func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 }
 
 // HandleLoginUser handles the registration of a created user
-func HandleLoginUser(str store.Driver) func(*fiber.Ctx) {
+func HandleLoginUser(str store.Driver, jwtGenerator func(string) (string, error)) func(*fiber.Ctx) {
 	type RequestBody struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+	}
+	type ResponseBody struct {
+		Token string `json:"token"`
 	}
 	return func(c *fiber.Ctx) {
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -174,7 +177,8 @@ func HandleLoginUser(str store.Driver) func(*fiber.Ctx) {
 			return
 		}
 
-		if err := users.AuthenticateUser(ctx, str, request.Email, request.Password); err != nil {
+		user, err := users.AuthenticateUser(ctx, str, request.Email, request.Password)
+		if err != nil {
 			_, invUser := err.(*users.UserDoesNotExist)
 			_, invCred := err.(*users.AuthCredentialMismatch)
 			if invUser || invCred {
@@ -182,7 +186,19 @@ func HandleLoginUser(str store.Driver) func(*fiber.Ctx) {
 			} else {
 				c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			}
+			return
 		}
+
+		token, err := jwtGenerator(user.ID)
+		if err != nil {
+			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
+			return
+		}
+
+		response := ResponseBody{
+			Token: token,
+		}
+		c.Status(http.StatusOK).JSON(response)
 		return
 	}
 }

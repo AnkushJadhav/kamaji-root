@@ -16,8 +16,8 @@ func GenerateBcryptHash(input []byte) ([]byte, error) {
 }
 
 // IsHashValid checks whether hash is calid for plain
-func IsHashValid(plain, hash []byte) bool {
-	if err := bcrypt.CompareHashAndPassword(plain, hash); err != nil {
+func IsHashValid(hash, plain []byte) bool {
+	if err := bcrypt.CompareHashAndPassword(hash, plain); err != nil {
 		return false
 	}
 

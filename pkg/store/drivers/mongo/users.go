@@ -78,11 +78,20 @@ func (mdb *Driver) DeleteUserByIDs(ctx context.Context, ids []string) (int, erro
 	return int(docs.DeletedCount), nil
 }
 
-// UpdateUsersByIDs updates a user with data identified by id
-func (mdb *Driver) UpdateUsersByIDs(ctx context.Context, ids []string, data models.User) (int, error) {
-	docs, err := mdb.dbs[dbPrimary].Collection(colUsers).UpdateMany(ctx, bson.M{colUsersAtrID: bson.M{"$in": ids}}, data)
-	if err != nil {
-		return -1, err
+// SetUserUsername deletes a user from the MongoDB persistant storage based on id
+func (mdb *Driver) SetUserUsername(ctx context.Context, id, username string) error {
+	if doc := mdb.dbs[dbPrimary].Collection(colUsers).FindOneAndUpdate(ctx, bson.D{}, bson.D{{"$set", bson.D{{colUsersAtrUsername, username}}}}); doc.Err() != nil {
+		return doc.Err()
 	}
-	return int(docs.MatchedCount), nil
+
+	return nil
+}
+
+// SetUserPassword deletes a user from the MongoDB persistant storage based on id
+func (mdb *Driver) SetUserPassword(ctx context.Context, id, password string) error {
+	if doc := mdb.dbs[dbPrimary].Collection(colUsers).FindOneAndUpdate(ctx, bson.D{}, bson.D{{"$set", bson.D{{colUsersAtrPassword, password}}}}); doc.Err() != nil {
+		return doc.Err()
+	}
+
+	return nil
 }

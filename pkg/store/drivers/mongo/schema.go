@@ -9,8 +9,10 @@ const (
 	colSystemAtrRoottoken   = "rootToken"
 	colSystemAtrJWTToken    = "jwtToken"
 
-	colUsers         = "users"
-	colUsersAtrID    = "id"
-	colUsersAtrNodes = "nodes"
-	colUsersAtrEmail = "email"
+	colUsers            = "users"
+	colUsersAtrID       = "id"
+	colUsersAtrNodes    = "nodes"
+	colUsersAtrEmail    = "email"
+	colUsersAtrUsername = "username"
+	colUsersAtrPassword = "password"
 )
