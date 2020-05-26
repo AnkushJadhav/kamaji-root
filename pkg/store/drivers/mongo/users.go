@@ -3,18 +3,20 @@ package mongo
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/AnkushJadhav/kamaji-root/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 // GetAllUsers retrieves all the users from MongoDB persistant storage
-func (mdb *Driver) GetAllUsers(ctx context.Context) ([]models.User, error) {
+func (mdb *Driver) GetAllUsers(ctx context.Context) ([]*models.User, error) {
 	cur, err := mdb.dbs[dbPrimary].Collection(colUsers).Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]models.User, 0)
+	result := make([]*models.User, 0)
 	if err := cur.All(ctx, &result); err != nil {
 		return nil, err
 	}
@@ -26,6 +28,27 @@ func (mdb *Driver) GetAllUsers(ctx context.Context) ([]models.User, error) {
 func (mdb *Driver) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	doc := mdb.dbs[dbPrimary].Collection(colUsers).FindOne(ctx, bson.D{{colUsersAtrID, id}})
 	if doc.Err() != nil {
+		if doc.Err() == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, doc.Err()
+	}
+
+	result := &models.User{}
+	if err := doc.Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// GetUserByEmail finds a user based on the given email
+func (mdb *Driver) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	doc := mdb.dbs[dbPrimary].Collection(colUsers).FindOne(ctx, bson.D{{colUsersAtrEmail, email}})
+	if doc.Err() != nil {
+		if doc.Err() == mongo.ErrNoDocuments {
+			return nil, nil
+		}
 		return nil, doc.Err()
 	}
 

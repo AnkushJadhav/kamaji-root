@@ -18,6 +18,7 @@ github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfc
 github.com/cpuguy83/go-md2man/v2 v2.0.0/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -55,6 +56,8 @@ github.com/gobuffalo/syncx v0.0.0-20190224160051-33c29581e754/go.mod h1:HhnNqWY9
 github.com/gofiber/fiber v1.9.0/go.mod h1:yQhhFUJprqnZVaEbd5h4ZqU+wb9vzP5imw7UbjGlDuQ=
 github.com/gofiber/fiber v1.9.6 h1:HtzOdbdNn/K/NlMMLbCNkiI79Ft0zjio7STcgY/Rox0=
 github.com/gofiber/fiber v1.9.6/go.mod h1:o2YQgwJW8+Z16x8MTos4nYn8PD1RJpzu9fojiGqjSjI=
+github.com/gofiber/jwt v0.0.6 h1:dQWj9FsPR5rcORrCTiadhpDerHs64onQV0bIjYqqOmg=
+github.com/gofiber/jwt v0.0.6/go.mod h1:lkJFTQxUT7gPq27oEgYrXw0Wc6mzMF7fWiX7G69ORh8=
 github.com/gofiber/requestid v0.0.4 h1:5wOwRLUTissipQM+VMMhFL3WByz7xamp7hpFrhvVIxQ=
 github.com/gofiber/requestid v0.0.4/go.mod h1:u2XXeRtAa7IjC5Wj3bVyChGOepw2FNtLpdloeYsfDjs=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=

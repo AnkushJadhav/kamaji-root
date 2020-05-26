@@ -54,6 +54,10 @@ func HandleGetUserByID(str store.Driver) func(*fiber.Ctx) {
 			c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 			return
 		}
+		if user == nil {
+			c.Status(http.StatusBadRequest).Send()
+			return
+		}
 
 		response := ResponseBody{
 			Data: user,
@@ -150,6 +154,35 @@ func HandleRegisterUser(str store.Driver) func(*fiber.Ctx) {
 		}
 
 		c.Status(http.StatusOK).Send()
+		return
+	}
+}
+
+// HandleLoginUser handles the registration of a created user
+func HandleLoginUser(str store.Driver) func(*fiber.Ctx) {
+	type RequestBody struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	return func(c *fiber.Ctx) {
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		request := RequestBody{}
+		if err := c.BodyParser(&request); err != nil {
+			c.Status(http.StatusBadRequest).Send()
+			return
+		}
+
+		if err := users.AuthenticateUser(ctx, str, request.Email, request.Password); err != nil {
+			_, invUser := err.(*users.UserDoesNotExist)
+			_, invCred := err.(*users.AuthCredentialMismatch)
+			if invUser || invCred {
+				c.Status(http.StatusUnauthorized).Send("Invalid Email or Password")
+			} else {
+				c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
+			}
+		}
 		return
 	}
 }

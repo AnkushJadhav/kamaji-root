@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/models"
-	"github.com/AnkushJadhav/kamaji-root/pkg/modules/users"
-
 	"github.com/AnkushJadhav/kamaji-root/pkg/modules/system"
-
+	"github.com/AnkushJadhav/kamaji-root/pkg/modules/users"
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
+
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/requestid"
 )
@@ -74,6 +73,8 @@ func HandleCreateRootUser(str store.Driver) func(*fiber.Ctx) {
 				c.Status(http.StatusInternalServerError).JSON(Handle500InternalServerError(requestid.Get(c), err))
 				return
 			}
+			// mark bootup as completed
+			str.SetBootupState(ctx, models.BootupStateCompleted)
 			c.Status(http.StatusOK).Send()
 		}
 		return

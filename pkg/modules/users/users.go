@@ -19,8 +19,22 @@ func (p *PasswordDoesNotMatchPolicy) Error() string {
 	return fmt.Sprintf("password does not match policy")
 }
 
+// UserDoesNotExist is the error returned when the requested user does not exist in the system
+type UserDoesNotExist struct{}
+
+func (u *UserDoesNotExist) Error() string {
+	return fmt.Sprintf("user does not exist")
+}
+
+// AuthCredentialMismatch is the error returned whe nthe credentaisl provided and stored do not match
+type AuthCredentialMismatch struct{}
+
+func (a *AuthCredentialMismatch) Error() string {
+	return fmt.Sprintf("inavlaid password")
+}
+
 // GetAllUsers gets all users in the system
-func GetAllUsers(ctx context.Context, store store.Driver) ([]models.User, error) {
+func GetAllUsers(ctx context.Context, store store.Driver) ([]*models.User, error) {
 	return store.GetAllUsers(ctx)
 }
 
@@ -58,11 +72,6 @@ func DeleteUser(ctx context.Context, store store.Driver, id string) error {
 	return nil
 }
 
-func isValid(password string) bool {
-	policy := regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})`)
-	return policy.Match([]byte(password))
-}
-
 // RegisterUser updates a user with their registration information post successful sign in at node
 func RegisterUser(ctx context.Context, store store.Driver, id, username, password string) error {
 	if !isValid(password) {
@@ -82,4 +91,26 @@ func RegisterUser(ctx context.Context, store store.Driver, id, username, passwor
 		return err
 	}
 	return nil
+}
+
+// AuthenticateUser verifies whether the the user is valid
+func AuthenticateUser(ctx context.Context, store store.Driver, email, password string) error {
+	user, err := store.GetUserByEmail(ctx, email)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return &UserDoesNotExist{}
+	}
+
+	if !utils.IsHashValid([]byte(password), []byte(user.Password)) {
+		return &AuthCredentialMismatch{}
+	}
+
+	return nil
+}
+
+func isValid(password string) bool {
+	policy := regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})`)
+	return policy.Match([]byte(password))
 }

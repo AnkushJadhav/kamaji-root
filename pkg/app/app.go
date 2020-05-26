@@ -1,10 +1,15 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/AnkushJadhav/kamaji-root/pkg/utils"
+
+	"github.com/AnkushJadhav/kamaji-root/pkg/models"
 	"github.com/AnkushJadhav/kamaji-root/pkg/store"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/store/drivers/mongo"
@@ -49,7 +54,13 @@ func Start(cfgFile string) error {
 		return err
 	}
 
-	persistSystemConfig(conf)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	if _, err := db.GetBootupState(ctx); err != nil {
+		if err := persistSystemConfig(db, conf); err != nil {
+			return err
+		}
+	}
 
 	logger.Infoln("starting http server")
 	httpServer := &http.Server{}
@@ -64,7 +75,9 @@ func Start(cfgFile string) error {
 		httpServer: httpServer,
 	}
 
-	startServer(httpServer, serverConfig)
+	if err := startServer(httpServer, serverConfig); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -77,11 +90,21 @@ func Stop() error {
 	return nil
 }
 
-func persistSystemConfig(conf *config) {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+func persistSystemConfig(store store.Driver, conf *config) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	db.SetBootupState(ctx, models.BootupStatePending)
-	db.SetRootToken(ctx, conf.Admin.RootToken)
+	if err := store.InitSystemConfig(ctx, utils.GenerateUUID()); err != nil {
+		return err
+	}
+
+	if err := store.SetBootupState(ctx, models.BootupStatePending); err != nil {
+		return err
+	}
+	if err := store.SetRootToken(ctx, conf.Admin.RootToken); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func fileLoggingEnabled(logFile string) bool {

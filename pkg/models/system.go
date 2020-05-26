@@ -12,6 +12,8 @@ const (
 
 // SystemConfig stores the config used by the system
 type SystemConfig struct {
+	ID          string      `bson:"id"`
 	BootupState Bootupstate `bson:"bootupState"`
 	RootToken   string      `bson:"rootToken"`
+	JWTSecret   string      `bson:"jwtToken"`
 }

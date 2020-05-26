@@ -2,7 +2,6 @@ package http
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/AnkushJadhav/kamaji-root/pkg/server"
 
@@ -29,6 +28,10 @@ func (srv *Server) Bootstrap(conf *server.Config) error {
 	loadUnrestrictedRootRoutes(srv)
 	loadUnrestrictedNodeRoutes(srv)
 
+	if err := srv.EnableJWTAuthentication(); err != nil {
+		return err
+	}
+
 	loadRestrictedRootRoutes(srv)
 	loadRestrictedNodeRoutes(srv)
 
@@ -37,8 +40,7 @@ func (srv *Server) Bootstrap(conf *server.Config) error {
 
 // Start runs the default HTTP server
 func (srv *Server) Start() error {
-	srv.app.Listen(srv.config.BindIP + ":" + strconv.Itoa(srv.config.Port))
-	return nil
+	return srv.app.Listen(srv.config.BindIP + ":" + strconv.Itoa(srv.config.Port))
 }
 
 // Stop stops the default HTTP server
@@ -50,28 +52,4 @@ func (srv *Server) Stop() error {
 		return err
 	}
 	return nil
-}
-
-func (srv *Server) initServerSettings() {
-	srv.settings = &fiber.Settings{}
-}
-
-func (srv *Server) prepopulatePool(b bool) {
-	srv.settings.Prefork = b
-}
-
-func (srv *Server) setReadTimeout(t time.Duration) {
-	srv.settings.ReadTimeout = t
-}
-
-func (srv *Server) setWriteTimeout(t time.Duration) {
-	srv.settings.WriteTimeout = t
-}
-
-func (srv *Server) setMaxConcurrency(c int) {
-	srv.settings.Concurrency = c
-}
-
-func (srv *Server) initServer() {
-	srv.app = fiber.New(srv.settings)
 }

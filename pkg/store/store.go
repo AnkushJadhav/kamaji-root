@@ -11,12 +11,16 @@ type Driver interface {
 	Connect() error
 	Disconnect() error
 
+	InitSystemConfig(context.Context, string) error
 	GetBootupState(context.Context) (models.Bootupstate, error)
 	SetBootupState(context.Context, models.Bootupstate) error
 	GetRootToken(context.Context) (string, error)
 	SetRootToken(context.Context, string) error
+	GetJWTToken(context.Context) (string, error)
+	SetJWTToken(context.Context, string) error
 
-	GetAllUsers(context.Context) ([]models.User, error)
+	GetAllUsers(context.Context) ([]*models.User, error)
+	GetUserByEmail(context.Context, string) (*models.User, error)
 	GetUserByID(context.Context, string) (*models.User, error)
 	CreateUser(context.Context, *models.User) error
 	DeleteUserByIDs(context.Context, []string) (int, error)
